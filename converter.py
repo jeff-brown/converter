@@ -57,7 +57,7 @@ def _get_armor(dat="data/armor.dat"):
         "level": 0,
         "town": 0,
         "inv": True,
-        "Classes": 0
+        "classes": 0
     }
     armors = []
     _armors_dat = None
@@ -71,9 +71,8 @@ def _get_armor(dat="data/armor.dat"):
     for armor_dat in _armors_dat:
         armor = armor.copy()
         _armor = armor_dat.split(':')
-        _attr = _armor[3].split()
-        del(_armor[3])
-        _armor = _armor + _attr
+        _attr = _armor.pop(3)
+        _armor = _armor + _attr.split()
         print(_armor)
         armor['type'] = _armor[1]
         armor['short'] = _armor[1]
@@ -88,7 +87,7 @@ def _get_armor(dat="data/armor.dat"):
         print(armor)
         armors.append(armor)
 
-    return armors
+    return yaml.safe_dump(armors, default_flow_style=False)
 
 
 def _get_barrier(dat="data/barriers.dat"):
@@ -124,7 +123,7 @@ def _get_barrier(dat="data/barriers.dat"):
         barrier['value'] = _barrier[4]
         barriers.append(barrier)
 
-    return barriers
+    return yaml.safe_dump(barriers, default_flow_style=False)
 
 
 def _get_equipment(dat="data/equipment.dat"):
@@ -186,7 +185,170 @@ def _get_equipment(dat="data/equipment.dat"):
 
         equipments.append(equipment)
 
-    return equipments
+    return yaml.safe_dump(equipments, default_flow_style=False)
+
+
+def _get_mob_weapons(dat="data/mob_weapons.dat"):
+    """
+    name:type:min:max:v1
+    :param dat:
+    :return: mob_weapons:
+    """
+    mob_weapon = {
+        "type": "club",
+        "damage": [100, 4],
+        "value": 10,
+        "equip": True,
+        "etype": "one-hand",
+        "dtype": "bludgeoning",
+        "effect": "light",
+        "inv": True,
+        "weight": 2,
+        "size": "light",
+        "modifier": "strength"
+    }
+    mob_weapons = []
+    _mob_weapons = None
+
+    with open(dat, "r") as stream:
+        try:
+            _mob_weapons = stream.read().split('\n')
+        except Exception as exc:
+            print(exc)
+
+    for vnum, _mob_weapon in enumerate(_mob_weapons):
+        print(vnum, _mob_weapon)
+        _mob_weapon = _mob_weapon.split(':')
+        mob_weapon = mob_weapon.copy()
+        _attr = _mob_weapon.pop(1)
+        _mob_weapon = _mob_weapon + _attr.split()
+
+        mob_weapon["vnum"] = int(vnum)
+        mob_weapon["name"] = _mob_weapon[0]
+        mob_weapon["type"] = _mob_weapon[0].replace(" ", "_")
+        mob_weapon["mob_type"] = int(_mob_weapon[1])
+        mob_weapon["min"] = int(_mob_weapon[2])
+        mob_weapon["max"] = int(_mob_weapon[3])
+        mob_weapon['damage'] = [int(_mob_weapon[2]), int(_mob_weapon[3])]
+        mob_weapon["v1"] = int(_mob_weapon[4])
+
+        mob_weapons.append(mob_weapon)
+
+    return yaml.safe_dump(mob_weapons, default_flow_style=False)
+
+
+def _get_mobs(dat="data/mobs.dat"):
+    """
+    0  vnum	   0
+    1  name	   strangle vine
+    2  desc	   The strangle vine is a large bulbous plant with several writhing vines sprouting from it. It moves slowly about on gnarled roots.
+    3  plur	   strangle vines
+    4  weapon	   choking vines
+    5  weapon	   null
+    6  weapon	   null
+    7  track	   0
+    8  combat	   90
+    9  terrain   4
+    10 gold	   0
+    11 treasure  0
+    12 armor	   0
+    13 special   0
+    14 hit die   1
+    15 regen	   0
+    16 min_wep   1
+    17 max_wep   4
+    18 min_spec  0
+    19 max_spec  0
+    20 att_eff   0
+    21 min_a_eff 0
+    22 max_a_eff 0
+    23 spec_ab   0
+    24 num_att   1
+    25 level     1
+    26 morale    0
+    27 spell_sk  0
+    28 spell_ty  0
+    29 min_spell 0
+    30 max_spell 0
+    31 gender    0
+    32 sub_type  0
+
+    :param dat:
+    :return:
+    """
+    mob = {}
+    mobs = []
+    _mobs = None
+
+    with open(dat, "r") as stream:
+        try:
+            _mobs = stream.read().split('\n')
+        except Exception as exc:
+            print(exc)
+
+    for _mob in _mobs:
+        _mob = _mob.split(':')
+        mob = mob.copy()
+        _attr = _mob.pop(3)
+        _attr = [int(x) for x in _attr.split()]
+        _mob = _mob + _attr
+
+        mob["vnum"] = int(_mob[0])
+        mob["name"] = _mob[1]
+        mob["type"] = _mob[1].replace(" ", "_")
+        mob["description"] = _mob[2]
+        mob["plural"] = _mob[3]
+        mob["special_attacks"] = [_mob[4], _mob[5], _mob[6]]
+        mob["can_track"] = _mob[7]
+        mob["combat_skill"] = _mob[8]
+        mob["terrain"] = _mob[9]
+        mob["gold"] = _mob[10]
+        mob["treasure"] = _mob[11]
+        mob["armor"] = _mob[12]
+        mob["special_attack_percentage"] = _mob[13]
+        mob["hit_dice"] = _mob[14]
+        mob["regeneration"] = _mob[15]
+        mob["min_weapon_damage"] = _mob[16]
+        mob["max_weapon_damege"] = _mob[17]
+        mob["weapon_damage"] = [_mob[16], _mob[17]]
+        mob["min_special_damage"] = _mob[18]
+        mob["max_special_damage"] = _mob[19]
+        mob["special_damage"] = [_mob[18], _mob[19]]
+        mob["attack_effect"] = _mob[20]
+        mob["min_attack_effect"] = _mob[21]
+        mob["max_attack_effect"] = _mob[22]
+        mob["attack_effect"] = [_mob[21], _mob[22]]
+        mob["special_ability"] = _mob[23]
+        mob["num_attacks"] = _mob[24]
+        mob["level"] = _mob[25]
+        mob["morale"] = _mob[26]
+        mob["spell_skill"] = _mob[27]
+        mob["spell_type"] = _mob[28]
+        mob["min_spell"] = _mob[29]
+        mob["max_spell"] = _mob[30]
+        mob["spells"] = [_mob[29], _mob[30]]
+        mob["gender"] = _mob[31]
+        mob["subtype"] = _mob[32]
+
+        mobs.append(mob)
+
+    return yaml.safe_dump(mobs, default_flow_style=False)
+
+
+def _get_spells(dat="data/spells.dat"):
+    """
+
+    :param dat:
+    :return:
+    """
+
+
+def _get_weapons(dat="data/weapons.dat"):
+    """
+
+    :param dat:
+    :return:
+    """
 
 
 def main():
@@ -195,9 +357,11 @@ def main():
     args: none
     returns: none
     """
-    print(json.dumps(_get_armor(), indent=4))
-    print(json.dumps(_get_barrier(), indent=4))
-    print(json.dumps(_get_equipment(), indent=4))
+    print(_get_armor())
+    print(_get_barrier())
+    # print(_get_equipment())
+    print(_get_mob_weapons())
+    print(_get_mobs())
 
     return 0
 
