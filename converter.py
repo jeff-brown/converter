@@ -91,6 +91,42 @@ def _get_armor(dat="data/armor.dat"):
     return armors
 
 
+def _get_barrier(dat="data/barriers.dat"):
+    """ convert barriers.dat to yaml """
+    barrier = {
+        "type": "iron door",  # 0
+        "etype": "door",
+        "value": 1,
+        "weight": 1,
+        "locked": True,
+        "equip": False,
+        "inv": False,
+        "locked_message": None,
+        "unlocked_message": None,
+        "rogue_message": None
+    }
+    barriers = []
+    _barriers_dat = None
+
+    with open(dat, "r") as stream:
+        try:
+            _barriers = stream.read().split('\n')
+        except Exception as exc:
+            print(exc)
+
+    for _barrier in _barriers:
+        _barrier = _barrier.split(':')
+        barrier = barrier.copy()
+        barrier['type'] = _barrier[0]
+        barrier['locked_message'] = _barrier[1]
+        barrier['unlocked_message'] = _barrier[2]
+        barrier['rogue_message'] = _barrier[3]
+        barrier['value'] = _barrier[4]
+        barriers.append(barrier)
+
+    return barriers
+
+
 def main():
     """
     function main
@@ -98,6 +134,8 @@ def main():
     returns: none
     """
     print(json.dumps(_get_armor(), indent=4))
+
+    print(json.dumps(_get_barrier(), indent=4))
 
     return 0
 
