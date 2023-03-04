@@ -127,6 +127,68 @@ def _get_barrier(dat="data/barriers.dat"):
     return barriers
 
 
+def _get_equipment(dat="data/equipment.dat"):
+    """
+        convert barriers.dat to yaml
+        Vnum:NAME:long_name:value:weight:v2:min_equip_effect:max_equip_effect:
+            equip_type:v6:charges:equip_sub_type:range:v10:quest_stat:
+            v12:v13:level:town:message
+        21:torch:a torch:1 10 0 0 450 21 0 0 16 0 0 0 0 0 0 1 255:
+
+    """
+    equipment = {
+        "type": "rope",
+        "etype": "gear",
+        "dtype": "gear",
+        "value": 1,
+        "weight": 1,
+        "effect": "climb",
+        "equip": False,
+        "inv": True
+    }
+    equipments = []
+    _equipments = None
+
+    with open(dat, "r") as stream:
+        try:
+            _equipments = stream.read().split('\n')
+        except Exception as exc:
+            print(exc)
+
+    for _equipment in _equipments:
+        _equipment = _equipment.split(':')
+        equipment = equipment.copy()
+        _attr = _equipment.pop(3)
+        _equipment = _equipment + _attr.split()
+
+        equipment["type"] = _equipment[1].replace(" ", "_")
+        equipment["vnum"] = int(_equipment[0])
+        equipment["name"] = _equipment[1]
+        equipment["description"] = _equipment[2]
+        equipment["message"] = _equipment[3]
+        equipment["value"] = int(_equipment[4])
+        equipment["weight"] = int(_equipment[5])
+        equipment["v6"] = _equipment[6]
+        equipment["min_equip_effect"] = int(_equipment[7])
+        equipment["max_equip_effect"] = int(_equipment[8])
+        equipment["equip_type"] = int(_equipment[9])
+        equipment["v10"] = _equipment[10]
+        equipment["charges"] = int(_equipment[11])
+        equipment["equip_sub_type"] = int(_equipment[12])
+        equipment["range"] = int(_equipment[13])
+        equipment["v10"] = _equipment[14]
+        equipment["quest_stat"] = int(_equipment[15])
+        equipment["v16"] = _equipment[16]
+        equipment["v17"] = _equipment[17]
+        equipment["v18"] = _equipment[18]
+        equipment["town"] = int(_equipment[19])
+        equipment["level"] = int(_equipment[20])
+
+        equipments.append(equipment)
+
+    return equipments
+
+
 def main():
     """
     function main
@@ -134,8 +196,8 @@ def main():
     returns: none
     """
     print(json.dumps(_get_armor(), indent=4))
-
     print(json.dumps(_get_barrier(), indent=4))
+    print(json.dumps(_get_equipment(), indent=4))
 
     return 0
 

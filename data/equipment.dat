@@ -1,4 +1,4 @@
-21:torch:a torch:1 10 0 0 450 21 0 0 16 0 0 0 0 0 0 1 255:
+21:torch:a torch:1 10 0 0 450 21 0 0  16  0  0  0  0  0  0  1 255:message
 22:rope:a coil of rope:3 25 0 0 0 21 0 0 0 0 0 0 0 0 0 1 255:
 23:ration of food:a ration of food:2 5 0 0 3600 21 0 0 1 0 0 0 0 0 0 1 255:
 24:waterskin:a waterskin:1 10 0 0 1800 21 0 3 2 0 0 0 0 0 0 1 255:
