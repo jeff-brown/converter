@@ -16,7 +16,6 @@ server running then used to send and receive messages from players.
 """
 import sys
 import yaml
-import json
 
 
 def _get_armor(dat="data/armor.dat"):
@@ -42,33 +41,17 @@ def _get_armor(dat="data/armor.dat"):
      * dragonscale:dragonscale armor:    1800 500 0 0 0 16 18 0  0  0  0  0  0  0  12 2
 
     """
-    armor = {
-        "type": "",
-        "type_num": 0,
-        "short": "",
-        "long": "",
-        "ac": 0,
-        "value": 0,
-        "weight": 0,
-        "size": "light",
-        "equip": True,
-        "etype:": "armor",
-        "dtype": "armor",
-        "level": 0,
-        "town": 0,
-        "inv": True,
-        "classes": 0
-    }
-    armors = []
+    armor = {}
+    armors = {}
     _armors_dat = None
 
-    with open("data/armor.dat", "r") as stream:
+    with open(dat, "r") as stream:
         try:
             _armors_dat = stream.read().split('\n')
         except Exception as exc:
             print(exc)
 
-    for armor_dat in _armors_dat:
+    for vnum, armor_dat in enumerate(_armors_dat):
         armor = armor.copy()
         _armor = armor_dat.split(':')
         _attr = _armor.pop(3)
@@ -85,26 +68,16 @@ def _get_armor(dat="data/armor.dat"):
         armor['town'] = _armor[18]
         armor['classes'] = _armor[19]
         print(armor)
-        armors.append(armor)
+        armors[vnum] = armor
 
-    return yaml.safe_dump(armors, default_flow_style=False)
+    with open('conf/armor.yaml', 'w') as file:
+        yaml.safe_dump(armors, file, default_flow_style=False)
 
 
 def _get_barrier(dat="data/barriers.dat"):
     """ convert barriers.dat to yaml """
-    barrier = {
-        "type": "iron door",  # 0
-        "etype": "door",
-        "value": 1,
-        "weight": 1,
-        "locked": True,
-        "equip": False,
-        "inv": False,
-        "locked_message": None,
-        "unlocked_message": None,
-        "rogue_message": None
-    }
-    barriers = []
+    barrier = {}
+    barriers = {}
     _barriers_dat = None
 
     with open(dat, "r") as stream:
@@ -113,7 +86,7 @@ def _get_barrier(dat="data/barriers.dat"):
         except Exception as exc:
             print(exc)
 
-    for _barrier in _barriers:
+    for vnum, _barrier in enumerate(_barriers):
         _barrier = _barrier.split(':')
         barrier = barrier.copy()
         barrier['type'] = _barrier[0]
@@ -121,9 +94,10 @@ def _get_barrier(dat="data/barriers.dat"):
         barrier['unlocked_message'] = _barrier[2]
         barrier['rogue_message'] = _barrier[3]
         barrier['value'] = _barrier[4]
-        barriers.append(barrier)
+        barriers[vnum] = barrier
 
-    return yaml.safe_dump(barriers, default_flow_style=False)
+    with open('conf/barriers.yaml', 'w') as file:
+        yaml.safe_dump(barriers, file, default_flow_style=False)
 
 
 def _get_equipment(dat="data/equipment.dat"):
@@ -135,17 +109,8 @@ def _get_equipment(dat="data/equipment.dat"):
         21:torch:a torch:1 10 0 0 450 21 0 0 16 0 0 0 0 0 0 1 255:
 
     """
-    equipment = {
-        "type": "rope",
-        "etype": "gear",
-        "dtype": "gear",
-        "value": 1,
-        "weight": 1,
-        "effect": "climb",
-        "equip": False,
-        "inv": True
-    }
-    equipments = []
+    equipment = {}
+    equipments = {}
     _equipments = None
 
     with open(dat, "r") as stream:
@@ -160,8 +125,8 @@ def _get_equipment(dat="data/equipment.dat"):
         _attr = _equipment.pop(3)
         _equipment = _equipment + _attr.split()
 
+        vnum = int(_equipment[0])
         equipment["type"] = _equipment[1].replace(" ", "_")
-        equipment["vnum"] = int(_equipment[0])
         equipment["name"] = _equipment[1]
         equipment["description"] = _equipment[2]
         equipment["message"] = _equipment[3]
@@ -183,9 +148,10 @@ def _get_equipment(dat="data/equipment.dat"):
         equipment["town"] = int(_equipment[19])
         equipment["level"] = int(_equipment[20])
 
-        equipments.append(equipment)
+        equipments[vnum] = equipment
 
-    return yaml.safe_dump(equipments, default_flow_style=False)
+    with open('conf/equipment.yaml', 'w') as file:
+        yaml.safe_dump(equipments, file, default_flow_style=False)
 
 
 def _get_mob_weapons(dat="data/mob_weapons.dat"):
@@ -194,20 +160,8 @@ def _get_mob_weapons(dat="data/mob_weapons.dat"):
     :param dat:
     :return: mob_weapons:
     """
-    mob_weapon = {
-        "type": "club",
-        "damage": [100, 4],
-        "value": 10,
-        "equip": True,
-        "etype": "one-hand",
-        "dtype": "bludgeoning",
-        "effect": "light",
-        "inv": True,
-        "weight": 2,
-        "size": "light",
-        "modifier": "strength"
-    }
-    mob_weapons = []
+    mob_weapon = {}
+    mob_weapons = {}
     _mob_weapons = None
 
     with open(dat, "r") as stream:
@@ -223,7 +177,6 @@ def _get_mob_weapons(dat="data/mob_weapons.dat"):
         _attr = _mob_weapon.pop(1)
         _mob_weapon = _mob_weapon + _attr.split()
 
-        mob_weapon["vnum"] = int(vnum)
         mob_weapon["name"] = _mob_weapon[0]
         mob_weapon["type"] = _mob_weapon[0].replace(" ", "_")
         mob_weapon["mob_type"] = int(_mob_weapon[1])
@@ -232,9 +185,10 @@ def _get_mob_weapons(dat="data/mob_weapons.dat"):
         mob_weapon['damage'] = [int(_mob_weapon[2]), int(_mob_weapon[3])]
         mob_weapon["v1"] = int(_mob_weapon[4])
 
-        mob_weapons.append(mob_weapon)
+        mob_weapons[vnum] = mob_weapon
 
-    return yaml.safe_dump(mob_weapons, default_flow_style=False)
+    with open('conf/mob_weapons.yaml', 'w') as file:
+        yaml.safe_dump(mob_weapons, file, default_flow_style=False)
 
 
 def _get_mobs(dat="data/mobs.dat"):
@@ -277,7 +231,7 @@ def _get_mobs(dat="data/mobs.dat"):
     :return:
     """
     mob = {}
-    mobs = []
+    mobs = {}
     _mobs = None
 
     with open(dat, "r") as stream:
@@ -293,7 +247,7 @@ def _get_mobs(dat="data/mobs.dat"):
         _attr = [int(x) for x in _attr.split()]
         _mob = _mob + _attr
 
-        mob["vnum"] = int(_mob[0])
+        vnum = int(_mob[0])
         mob["name"] = _mob[1]
         mob["type"] = _mob[1].replace(" ", "_")
         mob["description"] = _mob[2]
@@ -330,9 +284,10 @@ def _get_mobs(dat="data/mobs.dat"):
         mob["gender"] = _mob[31]
         mob["subtype"] = _mob[32]
 
-        mobs.append(mob)
+        mobs[vnum] = mob
 
-    return yaml.safe_dump(mobs, default_flow_style=False)
+    with open('conf/mobs.yaml', 'w') as file:
+        yaml.safe_dump(mobs, file, default_flow_style=False)
 
 
 def _get_spells(dat="data/spells.dat"):
@@ -357,11 +312,11 @@ def main():
     args: none
     returns: none
     """
-    print(_get_armor())
-    print(_get_barrier())
-    # print(_get_equipment())
-    print(_get_mob_weapons())
-    print(_get_mobs())
+    _get_armor()
+    _get_barrier()
+    _get_equipment()
+    _get_mob_weapons()
+    _get_mobs()
 
     return 0
 
